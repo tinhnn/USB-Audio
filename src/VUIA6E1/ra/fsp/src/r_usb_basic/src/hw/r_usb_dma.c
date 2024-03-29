@@ -1,5 +1,5 @@
 /***********************************************************************************************************************
- * Copyright [2020-2023] Renesas Electronics Corporation and/or its affiliates.  All Rights Reserved.
+ * Copyright [2020-2024] Renesas Electronics Corporation and/or its affiliates.  All Rights Reserved.
  *
  * This software and documentation are supplied by Renesas Electronics America Inc. and may only be used with products
  * of Renesas Electronics Corp. and its affiliates ("Renesas").  No other uses are authorized.  Renesas products are
@@ -170,17 +170,20 @@ void usb_cstd_dma_send_start (usb_utr_t * ptr, uint16_t pipe, uint16_t useport)
                 /* fraction size(1-3) */
                 g_usb_cstd_dma_fraction_size[ip][ch] = g_usb_cstd_dma_size[ip][ch] & USB_BIT_MBW16;
             }
+
+ #if USB_NUM_USBIP == 2
             else
             {
- #if defined(USB_HIGH_SPEED_MODULE)
+  #if defined(USB_HIGH_SPEED_MODULE)
 
                 /* fraction size(1-3) */
                 g_usb_cstd_dma_fraction_size[ip][ch] = g_usb_cstd_dma_size[ip][ch] & USB_BIT_MBW32;
- #else                                 /* defined (USB_HIGH_SPEED_MODULE) */
+  #else                                /* defined (USB_HIGH_SPEED_MODULE) */
                 /* fraction size(1-3) */
                 g_usb_cstd_dma_fraction_size[ip][ch] = g_usb_cstd_dma_size[ip][ch] & USB_BIT_MBW16;
- #endif /* defined (USB_HIGH_SPEED_MODULE) */
+  #endif /* defined (USB_HIGH_SPEED_MODULE) */
             }
+ #endif                                                                               /* USB_NUM_USBIP == 2 */
 
             g_usb_cstd_dma_fraction_adr[ip][ch] = (uint32_t) (p_data_ptr + dma_size); /* fraction data address */
         }

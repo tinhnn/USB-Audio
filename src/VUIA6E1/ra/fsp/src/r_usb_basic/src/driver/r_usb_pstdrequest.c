@@ -1,5 +1,5 @@
 /***********************************************************************************************************************
- * Copyright [2020-2023] Renesas Electronics Corporation and/or its affiliates.  All Rights Reserved.
+ * Copyright [2020-2024] Renesas Electronics Corporation and/or its affiliates.  All Rights Reserved.
  *
  * This software and documentation are supplied by Renesas Electronics America Inc. and may only be used with products
  * of Renesas Electronics Corp. and its affiliates ("Renesas").  No other uses are authorized.  Renesas products are
@@ -1575,7 +1575,7 @@ static void usb_pstd_set_interface3 (usb_utr_t * p_utr)
                     {
                         /* Alternate Setting 1 --> 0 */
                         pipe = g_usb_paud_iso_pipe[g_usb_pstd_req_index]; // g_usb_pstd_req_index: Interface Number
-                        tx_semaphore_put(&g_usb_peri_usbx_sem[pipe]);
+                        usb_pstd_forced_termination(pipe, (uint16_t) USB_DATA_STOP, p_utr);
                     }
                 }
    #endif                                                                 // USB_CFG_PAUD_USE

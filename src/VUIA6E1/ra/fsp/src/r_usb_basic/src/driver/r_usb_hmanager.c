@@ -1,5 +1,5 @@
 /***********************************************************************************************************************
- * Copyright [2020-2023] Renesas Electronics Corporation and/or its affiliates.  All Rights Reserved.
+ * Copyright [2020-2024] Renesas Electronics Corporation and/or its affiliates.  All Rights Reserved.
  *
  * This software and documentation are supplied by Renesas Electronics America Inc. and may only be used with products
  * of Renesas Electronics Corp. and its affiliates ("Renesas").  No other uses are authorized.  Renesas products are
@@ -87,6 +87,15 @@ static uint16_t usb_hstd_cmd_submit(usb_utr_t * ptr, usb_cb_t complete);
 static uint16_t usb_hstd_chk_remote(usb_utr_t * ptr);
 
 static void usb_hstd_mgr_rel_mpl(usb_utr_t * ptr, uint16_t n);
+
+ #if (BSP_CFG_RTOS == 2)
+  #if defined(USB_CFG_HCDC_USE)
+extern uint16_t * usb_hcdc_get_vendor_table(void);
+
+extern uint16_t g_usb_hcdc_speed[USB_NUM_USBIP];
+extern uint16_t g_usb_hcdc_devaddr[USB_NUM_USBIP];
+  #endif                               /* defined(USB_CFG_HCDC_USE) */
+ #endif                                /* #if (BSP_CFG_RTOS == 2) */
 
 /******************************************************************************
  * Exported global functions (to be accessed by other files)
@@ -559,6 +568,11 @@ static uint16_t usb_hstd_enumeration (usb_utr_t * ptr)
     uint32_t           usbx_status = UX_ERROR;
   #endif                               /* BSP_CFG_RTOS == 1 */
 
+  #if (defined(USB_CFG_HMSC_USE) && defined(USB_CFG_HCDC_USE))
+    uint32_t composite_cdc_check = 0;
+    uint32_t composite_msc_check = 0;
+  #endif
+
     /* Attach Detect Mode */
     enume_mode = USB_NONDEVICE;
 
@@ -695,8 +709,28 @@ static uint16_t usb_hstd_enumeration (usb_utr_t * ptr)
   #if (BSP_CFG_RTOS != 0)
                             if (USB_OK == retval)
                             {
+   #if (defined(USB_CFG_HMSC_USE) && defined(USB_CFG_HCDC_USE))
+                                if (USB_IFCLS_CDC == driver->ifclass)
+                                {
+                                    composite_cdc_check = 1;
+                                }
+
+                                if (USB_IFCLS_MAS == driver->ifclass)
+                                {
+                                    composite_msc_check = 1;
+                                }
+
+                                driver->devaddr = g_usb_hstd_device_addr[ptr->ip];
+
+                                if ((1 == composite_cdc_check) && (1 == composite_msc_check))
+                                {
+                                    flg = 1; /* break; */
+                                }
+
+   #else
                                 driver->devaddr = g_usb_hstd_device_addr[ptr->ip];
                                 flg             = 1; /* break; */
+   #endif
                             }
 
    #if (BSP_CFG_RTOS == 1)
@@ -829,7 +863,26 @@ static uint16_t usb_hstd_enumeration (usb_utr_t * ptr)
                             }
   #endif                               /* defined(USB_CFG_OTG_USE) */
 
+  #if (defined(USB_CFG_HMSC_USE) && defined(USB_CFG_HCDC_USE))
+                            if (USB_IFCLS_CDC == driver->ifclass)
+                            {
+                                composite_cdc_check = 1;
+                            }
+
+                            if (USB_IFCLS_MAS == driver->ifclass)
+                            {
+                                composite_msc_check = 1;
+                            }
+
+                            if ((1 == composite_cdc_check) && (1 == composite_msc_check))
+                            {
+                                return USB_COMPLETEPIPESET;
+                            }
+
+  #else
+
                             return USB_COMPLETEPIPESET;
+  #endif
                         }
                     }
 
@@ -1045,6 +1098,9 @@ uint16_t usb_hstd_chk_device_class (usb_utr_t * ptr, usb_hcdreg_t * driver)
     uint16_t   product_id;
     uint16_t   id_check;
     uint16_t   i;
+ #if defined(USB_CFG_HCDC_USE) && (BSP_CFG_RTOS == 2)
+    uint16_t * vendor_table;
+ #endif                                /* defined(USB_CFG_HCDC_USE) && (BSP_CFG_RTOS == 2) */
 
     descriptor_table = (uint8_t *) g_usb_hstd_device_descriptor[ptr->ip];
 
@@ -1093,6 +1149,28 @@ uint16_t usb_hstd_chk_device_class (usb_utr_t * ptr, usb_hcdreg_t * driver)
     }
     else
     {
+ #if defined(USB_CFG_HCDC_USE) && (BSP_CFG_RTOS == 2)
+        if (USB_IFCLS_CDC == driver->ifclass)
+        {
+            vendor_table = usb_hcdc_get_vendor_table();
+
+            /* WAIT_LOOP */
+            for (i = 0; i < vendor_table[0]; i++)
+            {
+                if ((vendor_table[(i * 2) + 2] == vendor_id) && (vendor_table[(i * 2) + 3] == product_id))
+                {
+                    result = USB_OK;
+                    g_usb_hcdc_speed[ptr->ip]   = g_usb_hstd_device_speed[ptr->ip];
+                    g_usb_hcdc_devaddr[ptr->ip] = g_usb_hstd_device_addr[ptr->ip];
+                }
+            }
+
+            if (USB_OK == result)
+            {
+                return result;
+            }
+        }
+ #endif                                /* defined(USB_CFG_HCDC_USE) && (BSP_CFG_RTOS == 2) */
         id_check = USB_ERROR;
 
         /* WAIT_LOOP */
@@ -2466,7 +2544,9 @@ void usb_hstd_mgr_task (void * stacd)
     uint16_t            connect_speed;
     uint16_t            result = 0;
     usb_instance_ctrl_t ctrl;
-
+ #if defined(USB_CFG_HMSC_USE) && defined(USB_CFG_HCDC_USE)
+    usb_cfg_t * p_cfg = USB_NULL;
+ #endif                                /* defined(USB_CFG_HMSC_USE) && defined(USB_CFG_HCDC_USE) */
  #if (BSP_CFG_RTOS == 0)
     uint16_t devsel;
  #endif                                /* (BSP_CFG_RTOS == 0) */
@@ -2908,11 +2988,31 @@ void usb_hstd_mgr_task (void * stacd)
                                 /*USB_BC_ATTACH(ptr, g_usb_hstd_device_addr[ptr->ip], (uint16_t)g_usb_hstd_bc[ptr->ip].state); */
                                 if (USB_BC_STATE_CDP == g_usb_hstd_bc[ptr->ip].state)
                                 {
+  #if defined(USB_CFG_HMSC_USE) && defined(USB_CFG_HCDC_USE)
+                                    if (ptr->ip)
+                                    {
+   #if defined(VECTOR_NUMBER_USBHS_USB_INT_RESUME)
+                                        p_cfg = (usb_cfg_t *) R_FSP_IsrContextGet(
+                                            (IRQn_Type) VECTOR_NUMBER_USBHS_USB_INT_RESUME);
+   #endif                              /* #if defined(VECTOR_NUMBER_USBHS_USB_INT_RESUME) */
+                                    }
+                                    else
+                                    {
+   #if defined(VECTOR_NUMBER_USBFS_INT)
+                                        p_cfg = (usb_cfg_t *) R_FSP_IsrContextGet((IRQn_Type) VECTOR_NUMBER_USBFS_INT);
+   #endif                              /* #if defined(VECTOR_NUMBER_USBFS_INT) */
+                                    }
+
+                                    if (USB_NULL != p_cfg)
+                                    {
+                                        ctrl.p_context = (void *) p_cfg->p_context;
+                                    }
+  #endif                                                                                             /* defined(USB_CFG_HMSC_USE) && defined(USB_CFG_HCDC_USE) */
                                     ctrl.device_address = (uint8_t) g_usb_hstd_device_addr[ptr->ip]; /* USB Device address */
                                     ctrl.module_number  = (uint8_t) ptr->ip;                         /* Module number setting */
                                     usb_set_event(USB_STATUS_BC, &ctrl);                             /* Set Event()  */
                                 }
- #endif /* USB_CFG_BC == USB_CFG_ENABLE */
+ #endif                                                                                              /* USB_CFG_BC == USB_CFG_ENABLE */
 
                                 usb_hstd_attach_function();
                                 usb_hstd_mgr_reset(ptr, g_usb_hstd_device_addr[ptr->ip]);

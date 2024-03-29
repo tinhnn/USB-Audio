@@ -88,4 +88,7 @@
  * on EK-RA4M2, EK-RA4M3, EK-RA6M1, EK-RA6M2, EK-RA6M3, EK-RA6M4, EK-RA6M5 */
 #define APL_AUDIO_10
 
+void audio_init();
+void audio_loop();
+
 #endif /* NAMI_AUDIO_H_ */

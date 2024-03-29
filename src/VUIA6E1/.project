@@ -35,4 +35,11 @@
 		<nature>com.renesas.cdt.ddsc.contentgen.ddscNature</nature>
 		<nature>com.renesas.cdt.ra.contentgen.raNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>src/nml_audio</name>
+			<type>2</type>
+			<locationURI>PARENT-1-PROJECT_LOC/nml_audio</locationURI>
+		</link>
+	</linkedResources>
 </projectDescription>

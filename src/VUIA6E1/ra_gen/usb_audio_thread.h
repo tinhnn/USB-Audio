@@ -46,7 +46,7 @@ extern dmac_instance_ctrl_t g_transfer1_ctrl;
 extern const transfer_cfg_t g_transfer1_cfg;
 
 #ifndef NULL
-void NULL(dmac_callback_args_t *p_args);
+void NULL(transfer_callback_args_t *p_args);
 #endif
 /* Transfer on DMAC Instance. */
 extern const transfer_instance_t g_transfer0;
@@ -56,7 +56,7 @@ extern dmac_instance_ctrl_t g_transfer0_ctrl;
 extern const transfer_cfg_t g_transfer0_cfg;
 
 #ifndef usb_ip0_d1fifo_callback
-void usb_ip0_d1fifo_callback(dmac_callback_args_t *p_args);
+void usb_ip0_d1fifo_callback(transfer_callback_args_t *p_args);
 #endif
 /* Basic on USB Instance. */
 extern const usb_instance_t g_basic0;
@@ -67,6 +67,12 @@ extern const usb_cfg_t g_basic0_cfg;
 
 #ifndef NULL
 void NULL(void*);
+#endif
+
+#if 0 == BSP_CFG_RTOS
+#ifndef NULL
+void NULL(usb_callback_args_t*);
+#endif
 #endif
 
 #if 2 == BSP_CFG_RTOS

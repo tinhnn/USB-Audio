@@ -1,5 +1,5 @@
 FSP Configuration
-  Board "VOICE-RA6E1"
+  Board "VK-RA6E1"
   R7FA6E10F2CFM
     part_number: R7FA6E10F2CFM
     rom_size_bytes: 1048576
@@ -12,6 +12,7 @@ FSP Configuration
     series: 6
     
   RA6E1 Family
+    Enable inline BSP IRQ functions: Enabled
     Security: Exceptions: Exception Response: Non-Maskable Interrupt
     Security: Exceptions: BusFault, HardFault, and NMI Target: Secure State
     Security: System Reset Request Accessibility: Secure State
@@ -41,6 +42,8 @@ FSP Configuration
     OFS0 register settings: WDT: Window Start Position: 100% (no window start position)
     OFS0 register settings: WDT: Reset Interrupt Request: Reset
     OFS0 register settings: WDT: Stop Control: Stop counting when entering Sleep mode
+    OFS1_SEL register settings: Voltage Detection 0 Level Security Attribution: VDSEL setting loads from OFS1_SEC
+    OFS1_SEL register settings: Voltage Detection 0 Circuit Start Security Attribution: LVDAS setting loads from OFS1_SEC
     OFS1 register settings: Voltage Detection 0 Circuit Start: Voltage monitor 0 reset is disabled after reset
     OFS1 register settings: Voltage Detection 0 Level: 2.80 V
     OFS1 register settings: HOCO Oscillation Enable: HOCO oscillation is enabled after reset
@@ -54,6 +57,7 @@ FSP Configuration
     Clocks: HOCO FLL Function: Disabled
     Main Oscillator Wait Time: 8163 cycles
     
+  RA6E1 event data
   RA Common
     Main stack size (bytes): 0x400
     Heap size (bytes): 0
@@ -329,7 +333,6 @@ FSP Configuration
     Parameter Checking: Default (BSP)
     Pin Output Support: Disabled
     Write Protect Enable: Disabled
-    Clock Source: PCLKD
     
   Azure RTOS ThreadX
     General: Custom tx_user.h: 
@@ -420,13 +423,10 @@ FSP Configuration
             Destination Address Mode: Fixed
             Source Address Mode: Incremented
             Repeat Area (Unused in Normal Mode): Destination
-            Destination Pointer: USB_DEST_ADDRESS
-            Source Pointer: 0
             Number of Transfers: 0
             Number of Blocks (Valid only in Repeat,Block or Repeat-Block Mode): 0
             Activation Source: USBFS FIFO 1 (DMA transfer request 1)
             Callback: usb_ip0_d1fifo_callback
-            Context: NULL
             Transfer End Interrupt Priority: Priority 3
             Interrupt Frequency: Interrupt after all transfers have completed
             Offset value (Valid only when address mode is \'Offset\'): 0
@@ -440,13 +440,10 @@ FSP Configuration
             Destination Address Mode: Incremented
             Source Address Mode: Fixed
             Repeat Area (Unused in Normal Mode): Source
-            Destination Pointer: 0
-            Source Pointer: USB_SRC_ADDRESS
             Number of Transfers: 0
             Number of Blocks (Valid only in Repeat,Block or Repeat-Block Mode): 0
             Activation Source: USBFS FIFO 0 (DMA transfer request 0)
             Callback: NULL
-            Context: NULL
             Transfer End Interrupt Priority: Priority 3
             Interrupt Frequency: Interrupt after all transfers have completed
             Offset value (Valid only when address mode is \'Offset\'): 0
@@ -461,6 +458,7 @@ FSP Configuration
       Charge Pump (Requires MOCO active): Disabled
       Internal Output: Not Supported
       ELC Trigger Source: Disabled
+      Reference Voltage: Not supported
       
     Instance "g_timer_dac Timer, General PWM (r_gpt)"
       General: Name: g_timer_dac

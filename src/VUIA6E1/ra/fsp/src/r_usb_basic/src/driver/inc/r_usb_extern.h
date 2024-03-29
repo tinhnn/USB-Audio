@@ -1,5 +1,5 @@
 /***********************************************************************************************************************
- * Copyright [2020-2023] Renesas Electronics Corporation and/or its affiliates.  All Rights Reserved.
+ * Copyright [2020-2024] Renesas Electronics Corporation and/or its affiliates.  All Rights Reserved.
  *
  * This software and documentation are supplied by Renesas Electronics America Inc. and may only be used with products
  * of Renesas Electronics Corp. and its affiliates ("Renesas").  No other uses are authorized.  Renesas products are
@@ -163,11 +163,14 @@ extern uint16_t g_usb_hstd_use_pipe[];
 extern rtos_sem_id_t g_usb_semaphore_hdl[];
 extern usb_utr_t * get_usb_int_buf(void);
 
-extern usb_callback_t * g_usb_apl_callback[USB_NUM_USBIP];
  #if (BSP_CFG_RTOS == 1)
 extern TX_SEMAPHORE g_usb_host_usbx_sem[USB_NUM_USBIP][USB_MAX_PIPE_NO + 1]; // usbx
  #endif                                                                      /* #if (BSP_CFG_RTOS == 1) */
-#endif                                                                       /* #if (BSP_CFG_RTOS != 0) */
+#endif
+
+/* #if (BSP_CFG_RTOS != 0) */
+extern usb_callback_t      * g_usb_apl_callback[USB_NUM_USBIP];
+extern usb_callback_args_t * g_usb_apl_callback_memory[USB_NUM_USBIP];
 
 /* r_usb_pbc.c */
 #if USB_CFG_BC == USB_CFG_ENABLE

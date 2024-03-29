@@ -25,10 +25,10 @@ void gpt_counter_overflow_isr(void);
 #define USBFS_FIFO_0_IRQn          ((IRQn_Type) 2) /* USBFS FIFO 0 (DMA transfer request 0) */
 #define VECTOR_NUMBER_USBFS_FIFO_1 ((IRQn_Type) 3) /* USBFS FIFO 1 (DMA transfer request 1) */
 #define USBFS_FIFO_1_IRQn          ((IRQn_Type) 3) /* USBFS FIFO 1 (DMA transfer request 1) */
-#define VECTOR_NUMBER_DMAC0_INT ((IRQn_Type) 4) /* DMAC0 INT (DMAC transfer end 0) */
-#define DMAC0_INT_IRQn          ((IRQn_Type) 4) /* DMAC0 INT (DMAC transfer end 0) */
-#define VECTOR_NUMBER_DMAC1_INT ((IRQn_Type) 5) /* DMAC1 INT (DMAC transfer end 1) */
-#define DMAC1_INT_IRQn          ((IRQn_Type) 5) /* DMAC1 INT (DMAC transfer end 1) */
+#define VECTOR_NUMBER_DMAC0_INT ((IRQn_Type) 4) /* DMAC0 INT (DMAC0 transfer end) */
+#define DMAC0_INT_IRQn          ((IRQn_Type) 4) /* DMAC0 INT (DMAC0 transfer end) */
+#define VECTOR_NUMBER_DMAC1_INT ((IRQn_Type) 5) /* DMAC1 INT (DMAC1 transfer end) */
+#define DMAC1_INT_IRQn          ((IRQn_Type) 5) /* DMAC1 INT (DMAC1 transfer end) */
 #define VECTOR_NUMBER_GPT5_COUNTER_OVERFLOW ((IRQn_Type) 6) /* GPT5 COUNTER OVERFLOW (Overflow) */
 #define GPT5_COUNTER_OVERFLOW_IRQn          ((IRQn_Type) 6) /* GPT5 COUNTER OVERFLOW (Overflow) */
 #ifdef __cplusplus
